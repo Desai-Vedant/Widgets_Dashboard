@@ -27,7 +27,7 @@ const WeatherWidget = () => {
   const fetchWeather = async (cityName) => {
     setLoading(true);
     try {
-      const API_KEY = import.meta.env.WEATHER_API_KEY; // Use environment variable
+      const API_KEY = "API_kEY"; // Use environment variable
       const response = await axios.get(
         `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&units=metric&appid=${API_KEY}`
       );
@@ -63,11 +63,11 @@ const WeatherWidget = () => {
 
   return (
     <Box
+      id="weather"
       sx={{
         padding: 2,
         border: "1px solid #ccc",
         borderRadius: 2,
-        maxWidth: 400,
         backgroundColor: "#f9f9f9",
         boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
         margin: "auto",

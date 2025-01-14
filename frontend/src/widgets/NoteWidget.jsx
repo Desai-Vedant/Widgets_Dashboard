@@ -62,11 +62,11 @@ const NoteWidget = () => {
 
   return (
     <Box
+      id="note"
       sx={{
         padding: 2,
         border: "1px solid #ccc",
         borderRadius: 2,
-        maxWidth: 400,
         backgroundColor: "#f9f9f9",
         boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
         margin: "auto",
