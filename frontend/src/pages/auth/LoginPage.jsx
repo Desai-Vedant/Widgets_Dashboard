@@ -26,7 +26,6 @@ const LoginPage = () => {
         { withCredentials: true }
       );
       localStorage.setItem("token", response.data.token);
-      console.log(response);
       navigate("/dashboard");
     } catch (err) {
       setError("Invalid credentials");

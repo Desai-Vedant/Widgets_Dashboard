@@ -1,46 +1,48 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import WeatherWidget from "../../components/WeatherWidget";
+import WeatherWidget from "../../Widgets/WeatherWidget";
+import TaskWidget from "../../widgets/TaskWidget";
+import NoteWidget from "../../widgets/NoteWidget";
 
 const Dashboard = () => {
-  const [widgets, setWidgets] = useState([]);
+  // State to store dashboard
+  const [dashboard, setDashboard] = useState({
+    weather: false,
+    task: false,
+    note: false,
+  });
 
-  const handleAddWidget = (widgetData) => {
-    setWidgets((prev) => [...prev, widgetData]);
+  // Function to fetch widgets available
+  const fetchWidgets = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/api/dashboard/get",
+        {},
+        { withCredentials: true }
+      );
+
+      setDashboard(response.data);
+    } catch (error) {
+      console.error("Error Getting Dashboard data", error);
+    }
   };
 
+  // Use effect that runs fetch widgets
+  useEffect(() => {
+    fetchWidgets();
+  }, []);
+
+  // condition based widget loading
   return (
     <Box sx={{ p: 2 }}>
       <Typography variant="h4" gutterBottom>
         Dashboard
       </Typography>
-      <WeatherWidget onAddToDashboard={handleAddWidget} />
-      <Box sx={{ display: "flex", flexWrap: "wrap", mt: 2 }}>
-        {widgets.map((widget, index) => (
-          <Box
-            key={index}
-            sx={{
-              border: "1px solid",
-              borderColor: "grey.400",
-              borderRadius: 2,
-              p: 2,
-              m: 1,
-              minWidth: 200,
-            }}
-          >
-            <Typography variant="body1">
-              <strong>City:</strong> {widget.name}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Temperature:</strong> {widget.main.temp}°C
-            </Typography>
-            <Typography variant="body1">
-              <strong>Condition:</strong> {widget.weather[0].description}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
+      {dashboard.weather && <WeatherWidget />}
+      {dashboard.task && <TaskWidget />}
+      {dashboard.note && <NoteWidget />}
     </Box>
   );
 };
