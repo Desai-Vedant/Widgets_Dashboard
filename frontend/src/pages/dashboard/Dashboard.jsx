@@ -32,11 +32,11 @@ const Dashboard = () => {
       // Initialize layout based on fetched data
       const initialLayout = [];
       if (response.data.weather)
-        initialLayout.push({ i: "weather", x: 0, y: 0, w: 10, h: 2 });
+        initialLayout.push({ i: "weather", x: NaN, y: 4, w: 5, h: 2 });
       if (response.data.task)
-        initialLayout.push({ i: "task", x: 10, y: 0, w: 10, h: 2 });
+        initialLayout.push({ i: "task", x: NaN, y: 2, w: 5, h: 2 });
       if (response.data.note)
-        initialLayout.push({ i: "note", x: 8, y: 0, w: 10, h: 2 });
+        initialLayout.push({ i: "note", x: NaN, y: 0, w: 5, h: 2 });
 
       setLayout(initialLayout);
     } catch (error) {
@@ -89,8 +89,8 @@ const Dashboard = () => {
       <GridLayout
         className="layout"
         layout={layout}
-        cols={30} // Number of columns in the grid
-        rowHeight={50} // Height of each row
+        cols={5} // Number of columns in the grid
+        rowHeight={100} // Height of each row
         width={"100%"} // Total width of the grid
         onLayoutChange={onLayoutChange} // Callback on layout change
         isDraggable={draggable} // Allow dragging

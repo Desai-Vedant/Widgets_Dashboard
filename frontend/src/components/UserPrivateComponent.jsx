@@ -1,10 +1,11 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const UserPrivateComponent = ({ children }) => {
-  const isAuthenticated = !!localStorage.getItem("token");
+  const { user } = useAuth();
 
-  if (!isAuthenticated) {
+  if (!user) {
     return <Navigate to="/login" />;
   }
 

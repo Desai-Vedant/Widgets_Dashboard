@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import {
   Box,
   TextField,
@@ -16,6 +17,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { user, login, logout } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -25,7 +27,7 @@ const LoginPage = () => {
         { email, password },
         { withCredentials: true }
       );
-      localStorage.setItem("token", response.data.token);
+      login(email);
       navigate("/dashboard");
     } catch (err) {
       setError("Invalid credentials");

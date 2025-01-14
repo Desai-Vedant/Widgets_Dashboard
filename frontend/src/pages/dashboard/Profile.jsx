@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
 import {
   Box,
   Typography,
@@ -16,12 +17,12 @@ const Profile = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { user, login, logout } = useAuth();
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const token = localStorage.getItem("token") || Cookies.get("token");
-        if (!token) {
+        if (!user) {
           throw new Error("User is not authenticated");
         }
 
@@ -46,7 +47,6 @@ const Profile = () => {
   }, []);
 
   const handleLogout = async () => {
-    localStorage.removeItem("token");
     const response = await axios.post(
       "http://localhost:3000/api/auth/logout",
       {},
@@ -54,6 +54,7 @@ const Profile = () => {
         withCredentials: true,
       }
     );
+    logout();
     navigate("/");
   };
 
