@@ -5,6 +5,7 @@ const dashboardSchema = new mongoose.Schema({
   weather: { type: Boolean, default: false },
   note: { type: Boolean, default: false },
   task: { type: Boolean, default: false },
+  layout: { type: Array, default: [] },
 });
 
 const Dashboard = mongoose.model("Dashboard", dashboardSchema);

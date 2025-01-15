@@ -5,7 +5,6 @@ import Home from "./pages/auth/HomePage";
 import LoginPage from "./pages/auth/LoginPage";
 import SignupPage from "./pages/auth/SignupPage";
 import UserPrivateComponent from "./components/UserPrivateComponent";
-import { useAuth } from "./context/AuthContext.jsx";
 
 function App() {
   return (

@@ -1,4 +1,4 @@
-import WeatherWidget from "../Widgets/WeatherWidget";
+import DummyWeatherWidget from "./DummyWeatherWidget";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import axios from "axios";
@@ -39,7 +39,7 @@ const WeatherWidgetManager = () => {
         borderRadius: 2,
       }}
     >
-      <WeatherWidget />
+      <DummyWeatherWidget />
       <Button
         variant="contained"
         color="primary"

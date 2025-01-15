@@ -1,65 +1,14 @@
-import React, { useEffect, useState } from "react";
 import {
-  Box,
-  Button,
-  ListItem,
-  TextField,
   Typography,
+  Box,
+  TextField,
+  Button,
   List,
+  ListItem,
 } from "@mui/material";
-import axios from "axios";
 
-const NoteWidget = () => {
-  const [notes, setNotes] = useState([]);
-  const [newNote, setNewNote] = useState("");
-
-  // Function to get note data from database
-  const getNotesData = async () => {
-    try {
-      const response = await axios.post(
-        "http://localhost:3000/api/note/getdata",
-        {},
-        { withCredentials: true }
-      );
-      setNotes(response.data.notes || []);
-    } catch (error) {
-      console.error("Failed to Get Notes List", error);
-    }
-  };
-
-  // Function to Update notes data on database
-  const updateNotesData = async (notesData) => {
-    try {
-      const response = await axios.post(
-        "http://localhost:3000/api/note/update",
-        notesData,
-        {
-          withCredentials: true,
-        }
-      );
-    } catch (error) {
-      console.error("Failed to update the backend:", error);
-    }
-  };
-
-  const handleAddNote = () => {
-    setNotes([...notes, newNote]);
-    setNewNote("");
-  };
-
-  const handleDeleteNote = (index) => {
-    setNotes(notes.filter((note, i) => i !== index));
-  };
-
-  useEffect(() => {
-    const notesData = notes;
-    const data = updateNotesData(notesData);
-  }, [notes]);
-
-  useEffect(() => {
-    const data = getNotesData();
-  }, []);
-
+function DummyNotesWidget() {
+  const notes = ["Sample Note"];
   return (
     <Box
       id="note"
@@ -93,16 +42,10 @@ const NoteWidget = () => {
       >
         <TextField
           label="Add a new note"
-          value={newNote}
           variant="outlined"
-          onChange={(e) => setNewNote(e.target.value)}
           sx={{ width: "100%", marginBottom: 2 }}
         />
-        <Button
-          variant="contained"
-          onClick={handleAddNote}
-          sx={{ marginBottom: 2 }}
-        >
+        <Button variant="contained" sx={{ marginBottom: 2 }}>
           Add Note
         </Button>
       </Box>
@@ -143,7 +86,7 @@ const NoteWidget = () => {
               <Button
                 variant="contained"
                 color="error"
-                onClick={() => handleDeleteNote(index)}
+                onClick={() => {}}
                 sx={{ marginLeft: 2, width: 100 }}
               >
                 Delete
@@ -154,6 +97,6 @@ const NoteWidget = () => {
       </List>
     </Box>
   );
-};
+}
 
-export default NoteWidget;
+export default DummyNotesWidget;

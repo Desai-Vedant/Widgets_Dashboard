@@ -2,7 +2,7 @@ import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = "ncircle"; // Replace with your actual secret
+const JWT_SECRET = "ncircle";
 
 // Signup
 export const signup = async (req, res) => {

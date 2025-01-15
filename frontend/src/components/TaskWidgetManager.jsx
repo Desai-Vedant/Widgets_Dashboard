@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import TaskWidget from "../widgets/TaskWidget";
+import DummyTaskWidget from "./DummyTaskWidget";
 import axios from "axios";
 
 const TaskWidgetManager = () => {
@@ -39,7 +39,7 @@ const TaskWidgetManager = () => {
         borderRadius: 2,
       }}
     >
-      <TaskWidget />
+      <DummyTaskWidget />
       <Button
         variant="contained"
         color="primary"

@@ -77,3 +77,23 @@ export const getDashboard = async (req, res) => {
     res.status(500).json({ message: "Internal Server error.", error });
   }
 };
+
+export const updateLayout = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const layout = req.body.layout;
+    let dashboard = await Dashboard.findOne({ userId });
+    if (!dashboard) {
+      dashboard = await Dashboard.create({ userId, layout });
+      if (!dashboard) {
+        return res.status(500).json({ message: "Failed to create dashboard." });
+      }
+    } else {
+      dashboard.layout = layout;
+      await dashboard.save();
+    }
+    res.status(200).json({ message: "Layout Updated Successfully", dashboard });
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error", error });
+  }
+};

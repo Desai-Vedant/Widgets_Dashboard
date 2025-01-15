@@ -19,7 +19,6 @@ function TaskWidget() {
         { withCredentials: true }
       );
       setTasks(response.data.tasks || {});
-      console.log(response.data.tasks);
     } catch (error) {
       setError("Failed to Get Tasks List");
       console.error("Failed to Get Tasks List", error);
@@ -48,16 +47,12 @@ function TaskWidget() {
   };
 
   useEffect(() => {
-    console.log(`Tasks Data Update Use Effect 1 : ${JSON.stringify(tasks)}`);
     const taskData = tasks;
-    updateTasksData(taskData);
-    console.log(`Tasks Data Update Use Effect 2 : ${JSON.stringify(tasks)}`);
+    const data = updateTasksData(taskData);
   }, [tasks]);
 
   useEffect(() => {
-    console.log(`Tasks Data Get Use Effect 3 : ${JSON.stringify(tasks)}`);
-    getTasksData();
-    console.log(`Tasks Data Get Use Effect 4 : ${JSON.stringify(tasks)}`);
+    const data = getTasksData();
   }, []);
 
   const handleAddTask = () => {
@@ -86,41 +81,62 @@ function TaskWidget() {
     <Box
       id="task"
       sx={{
+        display: "flex",
+        flexDirection: "column",
         padding: 2,
         border: "1px solid #ccc",
         borderRadius: 2,
         backgroundColor: "#f9f9f9",
         boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
         margin: "auto",
+        width: "100%",
+        height: "100%",
         textAlign: "center",
+        minHeight: 300,
       }}
     >
-      <Typography variant="h6" component="div" sx={{ p: 2 }}>
+      <Typography variant="h6" component="div" sx={{ p: 1, height: 50 }}>
         Task Manager
       </Typography>
-      <Box sx={{ p: 2 }}>
+      <Box
+        sx={{
+          p: 2,
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 2,
+        }}
+      >
         <TextField
           id="new-task"
           label="New Task"
           value={newTask}
           onChange={(e) => setNewTask(e.target.value)}
           sx={{ width: "100%" }}
+          error={!!error}
+          helperText={error}
         />
-        <Button
-          variant="contained"
-          onClick={handleAddTask}
-          sx={{ mt: 2 }}
-          disabled={loading}
-        >
+        <Button variant="contained" onClick={handleAddTask} disabled={loading}>
           {loading ? "Adding..." : "Add Task"}
         </Button>
-        {error && (
-          <Typography variant="body2" color="error" sx={{ mt: 1 }}>
-            {error}
-          </Typography>
-        )}
       </Box>
-      <List>
+      <List
+        sx={{
+          flexGrow: 1,
+          overflowY: "auto",
+          padding: 0,
+          marginTop: 2,
+          scrollbarWidth: "auto",
+          "&::-webkit-scrollbar": {
+            width: "8px",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#ccc",
+            borderRadius: "4px",
+          },
+        }}
+      >
         {Object.keys(tasks).map((taskName) => (
           <ListItem
             key={taskName}

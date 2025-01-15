@@ -3,6 +3,7 @@ import {
   addWidget,
   removeWidget,
   getDashboard,
+  updateLayout,
 } from "../controllers/dashboardController.js";
 import authenticateToken from "../utils/authorization.js";
 
@@ -17,4 +18,6 @@ router.post("/remove", authenticateToken, removeWidget);
 // get widget
 router.post("/get", authenticateToken, getDashboard);
 
+// Update Layout
+router.post("/update", authenticateToken, updateLayout);
 export default router;

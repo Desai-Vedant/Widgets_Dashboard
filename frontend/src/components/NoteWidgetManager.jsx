@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import NoteWidget from "../widgets/NoteWidget";
+import DummyNotesWidget from "./DummyNoteWidget";
 import axios from "axios";
 
 const NoteWidgetManager = () => {
@@ -38,7 +38,7 @@ const NoteWidgetManager = () => {
         borderRadius: 2,
       }}
     >
-      <NoteWidget />
+      <DummyNotesWidget />
       <Button
         variant="contained"
         color="primary"

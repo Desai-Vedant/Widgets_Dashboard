@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Typography, Switch, FormControlLabel } from "@mui/material";
-import GridLayout from "react-grid-layout";
+import { Responsive, WidthProvider } from "react-grid-layout";
 import WeatherWidget from "../../Widgets/WeatherWidget";
 import TaskWidget from "../../widgets/TaskWidget";
 import NoteWidget from "../../widgets/NoteWidget";
 
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
+
+const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const Dashboard = () => {
   const [dashboard, setDashboard] = useState({
@@ -19,7 +21,7 @@ const Dashboard = () => {
   const [layout, setLayout] = useState([]);
   const [draggable, setDraggable] = useState(true);
 
-  // Function to fetch widgets available
+  // Fetch widgets and their layout from the API
   const fetchWidgets = async () => {
     try {
       const response = await axios.post(
@@ -27,20 +29,52 @@ const Dashboard = () => {
         {},
         { withCredentials: true }
       );
-      setDashboard(response.data);
 
-      // Initialize layout based on fetched data
-      const initialLayout = [];
-      if (response.data.weather)
-        initialLayout.push({ i: "weather", x: NaN, y: 4, w: 5, h: 2 });
-      if (response.data.task)
-        initialLayout.push({ i: "task", x: NaN, y: 2, w: 5, h: 2 });
-      if (response.data.note)
-        initialLayout.push({ i: "note", x: NaN, y: 0, w: 5, h: 2 });
+      const fetchedData = response.data;
+      setDashboard(fetchedData);
 
+      const storedLayout = JSON.parse(localStorage.getItem("dashboardLayout"));
+      const initialLayout =
+        storedLayout?.length == 3
+          ? storedLayout
+          : initializeLayout(fetchedData);
       setLayout(initialLayout);
     } catch (error) {
-      console.error("Error Getting Dashboard data", error);
+      console.error("Error fetching dashboard data:", error);
+    }
+  };
+
+  // Initialize layout dynamically based on available widgets
+  const initializeLayout = () => {
+    const widgets = ["weather", "task", "note"];
+    const initialLayout = [];
+    let currentColumn = 0;
+
+    widgets.forEach((widget) => {
+      initialLayout.push({
+        i: widget,
+        x: currentColumn % 3,
+        y: Math.floor(currentColumn / 3),
+        w: 1,
+        h: 2,
+      });
+      currentColumn++;
+    });
+
+    return initialLayout;
+  };
+
+  // Save layout to the backend and local storage
+  const saveLayout = async (newLayout) => {
+    try {
+      localStorage.setItem("dashboardLayout", JSON.stringify(newLayout));
+      await axios.post(
+        "http://localhost:3000/api/dashboard/update",
+        { layout: newLayout },
+        { withCredentials: true }
+      );
+    } catch (error) {
+      console.error("Error updating dashboard layout:", error);
     }
   };
 
@@ -48,13 +82,14 @@ const Dashboard = () => {
     fetchWidgets();
   }, []);
 
-  // Save the layout when it changes
+  // Handle layout changes
   const onLayoutChange = (newLayout) => {
     setLayout(newLayout);
-    console.log("New Layout:", newLayout);
+    saveLayout(newLayout);
+    console.log("Updated Layout:", newLayout);
   };
 
-  // Render the correct widget based on type
+  // Render widgets dynamically
   const renderWidget = (type) => {
     switch (type) {
       case "weather":
@@ -68,37 +103,44 @@ const Dashboard = () => {
     }
   };
 
+  // Toggle draggable state
   const handleDraggableChange = (event) => {
     setDraggable(event.target.checked);
   };
 
   return (
     <div style={{ width: "100%", margin: "auto" }}>
-      <div style={{ width: "100%", margin: "auto" }}>
-        <Typography variant="h6" gutterBottom>
-          Dashboard
-        </Typography>
-        <FormControlLabel
-          control={
-            <Switch checked={draggable} onChange={handleDraggableChange} />
-          }
-          label="Enable Drag"
-        />
-      </div>
-
-      <GridLayout
+      <Typography variant="h6" gutterBottom>
+        Dashboard
+      </Typography>
+      <FormControlLabel
+        control={
+          <Switch checked={draggable} onChange={handleDraggableChange} />
+        }
+        label="Enable Drag"
+      />
+      <ResponsiveGridLayout
         className="layout"
-        layout={layout}
-        cols={5} // Number of columns in the grid
-        rowHeight={100} // Height of each row
-        width={"100%"} // Total width of the grid
-        onLayoutChange={onLayoutChange} // Callback on layout change
-        isDraggable={draggable} // Allow dragging
+        layouts={{ lg: layout }}
+        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+        cols={{ lg: 5, md: 4, sm: 3, xs: 2, xxs: 1 }}
+        rowHeight={300}
+        onLayoutChange={onLayoutChange}
+        isDraggable={draggable}
+        isResizable={true}
+        margin={[10, 10]}
+        containerPadding={[10, 10]}
+        preventCollision={true}
       >
-        {layout.map((widget) => (
-          <div key={widget.i}>{renderWidget(widget.i)}</div>
-        ))}
-      </GridLayout>
+        {layout.map(
+          (widget) =>
+            dashboard[widget.i] && (
+              <div key={widget.i} data-grid={widget}>
+                {renderWidget(widget.i)}
+              </div>
+            )
+        )}
+      </ResponsiveGridLayout>
     </div>
   );
 };
