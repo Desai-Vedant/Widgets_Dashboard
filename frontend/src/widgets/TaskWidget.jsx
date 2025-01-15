@@ -8,17 +8,20 @@ function TaskWidget() {
   const [newTask, setNewTask] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [syncStatus, setSyncStatus] = useState("synced");
 
   // Function to get tasks data from database
   const getTasksData = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await axios.post(
         "http://localhost:3000/api/task/getdata",
         {},
         { withCredentials: true }
       );
       setTasks(response.data.tasks || {});
+      setSyncStatus("synced");
     } catch (error) {
       setError("Failed to Get Tasks List");
       console.error("Failed to Get Tasks List", error);
@@ -27,10 +30,12 @@ function TaskWidget() {
     }
   };
 
-  // Function to Update task data on database
+  // Function to Update task data on database with retry logic
   const updateTasksData = async (tasksData) => {
     try {
       setLoading(true);
+      setError(null);
+      setSyncStatus("syncing");
       const response = await axios.post(
         "http://localhost:3000/api/task/update",
         tasksData,
@@ -38,21 +43,35 @@ function TaskWidget() {
           withCredentials: true,
         }
       );
+      setSyncStatus("synced");
     } catch (error) {
-      setError("Failed to update the backend");
+      setSyncStatus("failed");
+      setError("Failed to save changes. Will retry automatically.");
       console.error("Failed to update the backend:", error);
+      // Retry after 5 seconds
+      setTimeout(() => {
+        if (syncStatus === "failed") {
+          updateTasksData(tasksData);
+        }
+      }, 5000);
     } finally {
       setLoading(false);
     }
   };
 
+  // Debounce updates to prevent too frequent API calls
   useEffect(() => {
-    const taskData = tasks;
-    const data = updateTasksData(taskData);
+    const timeoutId = setTimeout(() => {
+      if (Object.keys(tasks).length > 0) {
+        updateTasksData(tasks);
+      }
+    }, 1000); // Wait 1 second after last change before updating
+
+    return () => clearTimeout(timeoutId);
   }, [tasks]);
 
   useEffect(() => {
-    const data = getTasksData();
+    getTasksData();
   }, []);
 
   const handleAddTask = () => {

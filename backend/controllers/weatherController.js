@@ -1,58 +1,76 @@
 import Weather from "../models/Weather.js";
+import axios from "axios";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const updateWeather = async (req, res) => {
-  // get the weather data from the request body
-  // get user details from req.user
-  // Check if user weather data already present
-  // if present then update it else create a new entry
-
   try {
-    const weather = req.body;
     const userId = req.user.id;
-    const newWeatherData = {
-      city: weather.name,
-      temperature: weather.main.temp,
-      condition: weather.weather[0].description,
-      userId: userId,
-    };
+    const { city } = req.body;
 
-    const userWeatherData = await Weather.findOne({ userId: userId });
+    // Get weather data from OpenWeatherMap API
+    const API_KEY = process.env.OPENWEATHER_API_KEY;
+    const response = await axios.get(
+      `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API_KEY}`
+    );
 
-    if (!userWeatherData) {
-      const savedWeatherData = await Weather.create(newWeatherData);
-      if (savedWeatherData) {
-        res.status(200).json(newWeatherData);
-      } else {
-        res.status(500).json({ message: "Server error!" });
-      }
+    const weatherData = response.data;
+
+    // Save to database
+    let weather = await Weather.findOne({ userId });
+    if (!weather) {
+      weather = new Weather({
+        userId,
+        city,
+        weatherData,
+      });
     } else {
-      const updatedWeatherData = await Weather.updateOne(
-        { userId: userId },
-        newWeatherData
-      );
-      if (updatedWeatherData) {
-        res.status(200).json(newWeatherData);
-      } else {
-        res.status(500).json({ message: "Server error!" });
-      }
+      weather.city = city;
+      weather.weatherData = weatherData;
     }
+
+    await weather.save();
+    res.status(200).json(weatherData);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error while updating weather data", error });
+    console.error("Weather update error:", error);
+    if (error.response?.status === 404) {
+      res.status(404).json({ error: "City not found" });
+    } else if (error.response?.status === 401) {
+      res.status(401).json({ error: "Invalid API key" });
+    } else {
+      res.status(500).json({ error: "Failed to update weather data" });
+    }
   }
 };
 
 export const getWeather = async (req, res) => {
   try {
     const userId = req.user.id;
-    const userWeatherData = await Weather.findOne({ userId: userId });
-    if (userWeatherData) {
-      res.status(200).json(userWeatherData);
-    } else {
-      res.status(200).json({ city: "Pune" }); // Return default city if no data found
+    const weather = await Weather.findOne({ userId });
+
+    if (!weather) {
+      return res.status(404).json({ error: "No weather data found" });
     }
+
+    // If data is older than 30 minutes, fetch new data
+    const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+    if (weather.updatedAt < thirtyMinutesAgo) {
+      const API_KEY = process.env.OPENWEATHER_API_KEY;
+      const response = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?q=${weather.city}&units=metric&appid=${API_KEY}`
+      );
+      
+      weather.weatherData = response.data;
+      await weather.save();
+    }
+
+    res.status(200).json({
+      city: weather.city,
+      weatherData: weather.weatherData,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Error while getting data.", error });
+    console.error("Get weather error:", error);
+    res.status(500).json({ error: "Failed to get weather data" });
   }
 };
