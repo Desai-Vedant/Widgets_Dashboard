@@ -23,7 +23,7 @@ export const updateNotes = async (req, res) => {
       await Note.create({ userId, notes: req.body });
       return res.status(201).json({ message: "Notes created successfully" });
     } else {
-      // If notes exist, update the record
+      // If notes exist update the record
       const updateResult = await Note.updateOne(
         { userId },
         { notes: req.body }

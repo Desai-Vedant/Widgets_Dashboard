@@ -1,8 +1,11 @@
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 
-const JWT_SECRET = "ncircle";
+dotenv.config();
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Signup
 export const signup = async (req, res) => {
@@ -44,7 +47,7 @@ export const login = async (req, res) => {
           {
             id: user._id,
           },
-          "ncircle",
+          JWT_SECRET,
           {
             expiresIn: "1h",
           }

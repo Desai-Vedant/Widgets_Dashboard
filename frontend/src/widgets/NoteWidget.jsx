@@ -82,7 +82,7 @@ const NoteWidget = () => {
       if (notes.length > 0) {
         updateNotesData(notes);
       }
-    }, 1000); // Wait 1 second after last change before updating
+    }, 1000); // Wait 1 second
 
     return () => clearTimeout(timeoutId);
   }, [notes]);

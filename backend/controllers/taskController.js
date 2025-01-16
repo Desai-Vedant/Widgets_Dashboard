@@ -31,7 +31,7 @@ export const updateTasks = async (req, res) => {
         .status(200)
         .json({ message: "Task created successfully", tasks });
     } else {
-      // If tasks exist, update them
+      // If tasks exist update them
       const updateResult = await Task.updateOne(
         { userId },
         { tasks: tasksData }

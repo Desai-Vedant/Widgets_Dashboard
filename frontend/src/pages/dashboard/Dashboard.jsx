@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Typography, Switch, FormControlLabel } from "@mui/material";
+import { Typography, Switch, FormControlLabel, Box } from "@mui/material";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import WeatherWidget from "../../Widgets/WeatherWidget";
 import TaskWidget from "../../widgets/TaskWidget";
@@ -16,6 +16,7 @@ const Dashboard = () => {
     weather: false,
     task: false,
     note: false,
+    layout: [],
   });
 
   const [layout, setLayout] = useState([]);
@@ -35,9 +36,11 @@ const Dashboard = () => {
 
       const storedLayout = JSON.parse(localStorage.getItem("dashboardLayout"));
       const initialLayout =
-        storedLayout?.length == 3
-          ? storedLayout
-          : initializeLayout(fetchedData);
+        fetchedData.layout?.length == 3
+          ? fetchedData.layout
+          : storedLayout?.length == 0
+            ? initializeLayout()
+            : storedLayout;
       setLayout(initialLayout);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
@@ -86,10 +89,9 @@ const Dashboard = () => {
   const onLayoutChange = (newLayout) => {
     setLayout(newLayout);
     saveLayout(newLayout);
-    console.log("Updated Layout:", newLayout);
   };
 
-  // Render widgets dynamically
+  // Render widgets
   const renderWidget = (type) => {
     switch (type) {
       case "weather":
@@ -110,15 +112,33 @@ const Dashboard = () => {
 
   return (
     <div style={{ width: "100%", margin: "auto" }}>
-      <Typography variant="h6" gutterBottom>
-        Dashboard
-      </Typography>
-      <FormControlLabel
-        control={
-          <Switch checked={draggable} onChange={handleDraggableChange} />
-        }
-        label="Enable Drag"
-      />
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          ml: 2,
+          p: 1,
+          borderRadius: 1,
+        }}
+      >
+        <Typography variant="h4" sx={{ fontWeight: 600 }}>
+          Dashboard
+        </Typography>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={draggable}
+              onChange={handleDraggableChange}
+              sx={{ m: 1 }}
+            />
+          }
+          label="Enable Drag"
+          sx={{ m: 1 }}
+        />
+      </Box>
+
       <ResponsiveGridLayout
         className="layout"
         layouts={{ lg: layout }}
