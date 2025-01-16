@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Rectangle -->
+  <rect x="10" y="10" width="30" height="30" rx="5" fill="#2196f3"/>
+  
+  <!-- Widget Icons -->
+  <rect x="15" y="15" width="8" height="8" rx="2" fill="white"/>
+  <rect x="27" y="15" width="8" height="8" rx="2" fill="white"/>
+  <rect x="15" y="27" width="8" height="8" rx="2" fill="white"/>
+  <rect x="27" y="27" width="8" height="8" rx="2" fill="white"/>
+</svg>

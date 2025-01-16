@@ -12,24 +12,36 @@ import axios from "axios";
 const NoteWidget = () => {
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [syncStatus, setSyncStatus] = useState("synced");
 
   // Function to get note data from database
   const getNotesData = async () => {
     try {
+      setLoading(true);
+      setError(null);
       const response = await axios.post(
         "http://localhost:3000/api/note/getdata",
         {},
         { withCredentials: true }
       );
       setNotes(response.data.notes || []);
+      setSyncStatus("synced");
     } catch (error) {
+      setError("Failed to Get Notes List");
       console.error("Failed to Get Notes List", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Function to Update notes data on database
+  // Function to Update notes data on database with retry logic
   const updateNotesData = async (notesData) => {
     try {
+      setLoading(true);
+      setError(null);
+      setSyncStatus("syncing");
       const response = await axios.post(
         "http://localhost:3000/api/note/update",
         notesData,
@@ -37,27 +49,46 @@ const NoteWidget = () => {
           withCredentials: true,
         }
       );
+      setSyncStatus("synced");
     } catch (error) {
+      setSyncStatus("failed");
+      setError("Failed to save changes. Will retry automatically.");
       console.error("Failed to update the backend:", error);
+      // Retry after 5 seconds
+      setTimeout(() => {
+        if (syncStatus === "failed") {
+          updateNotesData(notesData);
+        }
+      }, 5000);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleAddNote = () => {
-    setNotes([...notes, newNote]);
-    setNewNote("");
+    if (newNote.trim() !== "") {
+      setNotes([...notes, newNote]);
+      setNewNote("");
+    }
   };
 
   const handleDeleteNote = (index) => {
     setNotes(notes.filter((note, i) => i !== index));
   };
 
+  // Debounce updates to prevent too frequent API calls
   useEffect(() => {
-    const notesData = notes;
-    const data = updateNotesData(notesData);
+    const timeoutId = setTimeout(() => {
+      if (notes.length > 0) {
+        updateNotesData(notes);
+      }
+    }, 1000); // Wait 1 second after last change before updating
+
+    return () => clearTimeout(timeoutId);
   }, [notes]);
 
   useEffect(() => {
-    const data = getNotesData();
+    getNotesData();
   }, []);
 
   return (
@@ -152,6 +183,26 @@ const NoteWidget = () => {
           </ListItem>
         ))}
       </List>
+      {error && (
+        <Typography variant="body2" sx={{ color: "error.main" }}>
+          {error}
+        </Typography>
+      )}
+      {loading && (
+        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+          Loading...
+        </Typography>
+      )}
+      {syncStatus === "syncing" && (
+        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+          Syncing...
+        </Typography>
+      )}
+      {syncStatus === "failed" && (
+        <Typography variant="body2" sx={{ color: "error.main" }}>
+          Failed to sync. Will retry automatically.
+        </Typography>
+      )}
     </Box>
   );
 };

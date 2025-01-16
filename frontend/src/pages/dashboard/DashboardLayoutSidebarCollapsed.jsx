@@ -11,6 +11,7 @@ import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import Profile from "./Profile";
 import Dashboard from "./Dashboard";
 import Widgets from "./Widgets";
+import dashboardLogo from "../../assets/dashboard-logo.svg";
 
 const NAVIGATION = [
   {
@@ -90,8 +91,8 @@ function DashboardLayoutSidebarCollapsed(props) {
     <AppProvider
       navigation={NAVIGATION}
       branding={{
-        logo: <img src="https://mui.com/static/logo.png" alt="MUI logo" />,
-        title: "Dashboard",
+        logo: <img src={dashboardLogo} alt="Dashboard logo" style={{ height: 40, width: 40 }} />,
+        title: "MyDashboard",
         homeUrl: "dashboard",
       }}
       router={router}

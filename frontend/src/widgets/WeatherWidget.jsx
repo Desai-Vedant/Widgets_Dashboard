@@ -1,50 +1,45 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import CircularProgress from "@mui/material/CircularProgress";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  CircularProgress,
+} from "@mui/material";
 
 const WeatherWidget = () => {
-  const [city, setCity] = useState("Pune");
+  const [city, setCity] = useState("Kolhapur");
   const [weather, setWeather] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const updateBackend = async (weatherData) => {
-    try {
-      await axios.post(
-        "http://localhost:3000/api/weather/update",
-        weatherData,
-        { withCredentials: true }
-      );
-    } catch (error) {
-      console.error("Failed to update the backend:", error);
-    }
-  };
-
   const fetchWeather = async (cityName) => {
     setLoading(true);
+    setError(null);
     try {
-      const API_KEY = "ca12f1c1baa7a87947b3c0096b5f4820"; // Use environment variable
-      const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&units=metric&appid=${API_KEY}`
+      const response = await axios.post(
+        "http://localhost:3000/api/weather/update",
+        { city: cityName },
+        { withCredentials: true }
       );
       setWeather(response.data);
-      setError(null);
-      updateBackend(response.data); // Auto-update backend
     } catch (err) {
       setWeather(null);
-      setError("City not found or API error.");
+      if (err.response?.status === 404) {
+        setError("City not found. Please check the spelling.");
+      } else {
+        setError("Failed to fetch weather data. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    const fetchInitialCity = async () => {
+    const fetchInitialWeather = async () => {
       try {
+        setLoading(true);
         const response = await axios.post(
           "http://localhost:3000/api/weather/getdata",
           {},
@@ -52,13 +47,18 @@ const WeatherWidget = () => {
         );
         if (response.data?.city) {
           setCity(response.data.city);
-          fetchWeather(response.data.city);
+        }
+        if (response.data?.weatherData) {
+          setWeather(response.data.weatherData);
         }
       } catch (error) {
-        console.error("Failed to fetch initial city:", error);
+        console.error("Failed to fetch initial weather:", error);
+        setError("Failed to load weather data");
+      } finally {
+        setLoading(false);
       }
     };
-    fetchInitialCity();
+    fetchInitialWeather();
   }, []);
 
   return (
@@ -88,6 +88,8 @@ const WeatherWidget = () => {
         onChange={(e) => setCity(e.target.value)}
         fullWidth
         sx={{ mb: 2 }}
+        error={!!error}
+        helperText={error}
       />
       <Button
         variant="contained"
@@ -111,10 +113,10 @@ const WeatherWidget = () => {
             {weather.name}
           </Typography>
           <Typography variant="body1">
-            <strong>Temperature:</strong> {weather.main.temp}°C
+            <strong>Temperature:</strong> {Math.round(weather.main.temp)}°C
           </Typography>
           <Typography variant="body1">
-            <strong>Condition:</strong> {weather.weather[0]?.description}
+            <strong>Condition:</strong> {weather.weather[0].description}
           </Typography>
         </Box>
       ) : (
