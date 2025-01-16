@@ -72,7 +72,17 @@ const Profile = () => {
         {loading ? (
           <CircularProgress />
         ) : error ? (
-          <Alert severity="error">{error}</Alert>
+          <>
+            <Alert severity="error">{error}</Alert>{" "}
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleLogout}
+              sx={{ mt: 2 }}
+            >
+              Logout
+            </Button>
+          </>
         ) : (
           <>
             <Typography variant="h4" gutterBottom>

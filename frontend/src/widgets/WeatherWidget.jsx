@@ -27,7 +27,7 @@ const WeatherWidget = () => {
   const fetchWeather = async (cityName) => {
     setLoading(true);
     try {
-      const API_KEY = "API_KEY"; // Use environment variable
+      const API_KEY = "ca12f1c1baa7a87947b3c0096b5f4820"; // Use environment variable
       const response = await axios.get(
         `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&units=metric&appid=${API_KEY}`
       );
